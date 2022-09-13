@@ -7,18 +7,9 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 #add_executable(main main.cpp sqlImpl.cpp)
 #target_link_libraries(main ${CONAN_LIBS})
-
+include_directories(src/include)
 enable_testing()
-add_executable(
-  hello_test
-  tokenize_test.cpp
-  tokenizer.cpp
-)
- target_link_libraries(
-   hello_test
-   gtest
-   gtest_main
- )
-
-include(GoogleTest)
-gtest_discover_tests(hello_test)
+add_subdirectory(src/utils)
+add_subdirectory(src/frontend)
+add_subdirectory(src/service)
+add_subdirectory(src/test)

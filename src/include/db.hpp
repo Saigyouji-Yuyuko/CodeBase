@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <memory>
-#include "error.hpp"
+#include "utils/error.hpp"
 namespace CodeBase
 {
     class TableView;

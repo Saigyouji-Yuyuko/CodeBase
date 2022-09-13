@@ -1,5 +1,5 @@
 #pragma once
-#include "error.hpp"
+#include "utils/error.hpp"
 #include <string>
 namespace CodeBase {
     static inline bool is_alphabat(char c)

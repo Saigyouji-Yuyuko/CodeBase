@@ -9,7 +9,6 @@ namespace CodeBase
       ErrorCode(ErrorCode&&) = default;
       ErrorCode& operator=(const ErrorCode&) = default;
       ErrorCode& operator=(ErrorCode&&) = default;
-
       ~ErrorCode() = default;
       static constexpr ErrorCode OK() { return ErrorCode(0); }
       static constexpr ErrorCode NotSupport() { return ErrorCode(1); }
@@ -23,6 +22,9 @@ namespace CodeBase
    private:
       constexpr ErrorCode(std::uint64_t code) : code(code) {}
       uint64_t code = 0;
+      const char* detailMsg = nullptr;
+      uint64_t lineNumber = 0;
+      const char* fileName = nullptr;
    };
    
 }

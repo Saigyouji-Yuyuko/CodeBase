@@ -1,5 +1,5 @@
 #include "sql.hpp"
-#include "error.hpp"
+#include "utils/error.hpp"
 #include "sql.hpp"
 #include "tokenizer.hpp"
 
@@ -49,8 +49,12 @@ namespace CodeBase
    
     class SelectItemExpr
     {
+        std::string name;
 
         std::string ascol;
+    };
+    class Expr {
+
     };
     class SelectExpr : public ExprTree
     {
@@ -61,14 +65,15 @@ namespace CodeBase
             friend ErrorCode MakeSelectExpr(TokenizerStream& stream,std::unique_ptr<ExprTree>& result);
         private:
             bool distinct = false;
-            std::vector<std::string> fileds;
-            std::string table;
-            ExprTree *subquery = nullptr;      
+            std::vector<SelectItemExpr> cols;
+            std::unique_ptr<Expr> where;
+
+
     };
     ErrorCode SelectItemExpr(TokenizerStream& stream,std::unique_ptr<SelectExpr>& expr)
     {
         if(stream.EatToken("*")){
-            
+
         }else{
 
         }
@@ -81,6 +86,12 @@ namespace CodeBase
         }
         return ErrorCode::OK();
     }
+    
+    ErrorCode FromTableName(TokenizerStream& stream,std::unique_ptr<SelectExpr>& expr)
+    {
+
+    }
+
     ErrorCode MakeSelectExpr(TokenizerStream& stream,std::unique_ptr<ExprTree>& result)
     {
         {
@@ -99,11 +110,35 @@ namespace CodeBase
                 return err;
             }
         }while(stream.EatToken(","));
+
+
         auto ok = stream.EatTokenWithoutCaseSensitive("from");
         assert(ok);
-                
-        
-        
+        if(auto err = FromTableName(stream, ptr);err != ErrorCode::OK())
+            return err;
+
+       
+        if(ok = stream.EatTokenWithoutCaseSensitive("where"); ok){
+
+        }
+
+        if(ok = stream.EatTokenWithoutCaseSensitive("groupby"); ok){
+            return ErrorCode::NotSupport();
+        }
+
+        if(ok = stream.EatTokenWithoutCaseSensitive("having"); ok){
+            return ErrorCode::NotSupport();
+        }
+
+        if(ok = stream.EatTokenWithoutCaseSensitive("orderby"); ok){
+            return ErrorCode::NotSupport();
+        }
+
+        if(ok = stream.EatTokenWithoutCaseSensitive("limit"); ok){
+            return ErrorCode::NotSupport();
+        }
+        result.reset(ptr.release());
+        return ErrorCode::OK();
     }
 
     ErrorCode CreateExpr(TokenizerStream& stream,std::unique_ptr<ExprTree>& result)
