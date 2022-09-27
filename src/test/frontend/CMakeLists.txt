@@ -5,6 +5,7 @@ add_executable(
 )
 target_link_libraries(
     tokenize_test
+    PUBLIC
     gtest
     gtest_main
     sqlFrontend

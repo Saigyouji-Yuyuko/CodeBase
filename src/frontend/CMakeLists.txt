@@ -2,7 +2,7 @@ include_directories(../frontend)
 add_library(
     sqlFrontend
     sqlparse.cpp
-    tokenizer.hpp
+    tokenizer.cpp
 )
 
 target_include_directories(sqlFrontend PUBLIC .)
