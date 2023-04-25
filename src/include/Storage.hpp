@@ -1,4 +1,5 @@
 #pragma once
+#include "coroutine/Task.hpp"
 #include "utils/environment.hpp"
 #include "utils/error.hpp"
 #include <cstddef>
@@ -16,21 +17,61 @@ struct Page {
     char   data[PageSize];
     size_t PinCount = 0;
     PageID pageID = 0;
+    PageID GetPageID() const {
+        return pageID;
+    }
+    ErrorCode Read(char *data, size_t offset, size_t len) {
+        if (offset + len > PageSize)
+            return Error::OutOfRange;
+        ::memcpy(data, this->data + offset, len);
+        return Error::Success;
+    }
+    ErrorCode Write(const char *data, size_t offset, size_t len) {
+        if (offset + len > PageSize)
+            return Error::OutOfRange;
+        ::memcpy(this->data + offset, data, len);
+        return Error::Success;
+    }
+    Task<ErrorCode> ReadAsync(char *data, size_t offset, size_t len) {
+        if (offset + len > PageSize)
+            co_return Error::OutOfRange;
+        ::memcpy(data, this->data + offset, len);
+        co_return Error::Success;
+    }
+    Task<ErrorCode> WriteAsync(const char *data, size_t offset, size_t len) {
+        if (offset + len > PageSize)
+            co_return Error::OutOfRange;
+        ::memcpy(this->data + offset, data, len);
+        co_return Error::Success;
+    }
+    size_t size() const {
+        return PageSize;
+    }
 };
 
-template<typename T>
-concept StorageInterface = requires(T a, Page **outPage) {
-                               { a.Format() } -> std::same_as<ErrorCode>;
-                               { a.Load() } -> std::same_as<ErrorCode>;
-                               { a.AllocPage(outPage) } -> std::same_as<ErrorCode>;
-                               { a.FreePage(PageID{}) } -> std::same_as<ErrorCode>;
-                               { a.ReadPageWithPin(PageID{}, outPage) } -> std::same_as<ErrorCode>;
-                               { a.MarkDirty(PageID{}) } -> std::same_as<ErrorCode>;
-                               { a.UnPinPage(PageID{}) } -> std::same_as<ErrorCode>;
-                               { a.FlushAllDirtyPages() } -> std::same_as<ErrorCode>;
-                           };
+class IStorage {
+public:
+    IStorage() = default;
+    virtual ~IStorage() = default;
 
-class MemTeatStorage {
+    virtual Task<ErrorCode> Format() = 0;
+
+    virtual Task<ErrorCode> Load() = 0;
+
+    virtual Task<ErrorCode> AllocPage(Page **outPage) = 0;
+
+    virtual Task<ErrorCode> FreePage(PageID page_id) = 0;
+
+    virtual Task<ErrorCode> ReadPageWithPin(PageID page_id, Page **outPage) = 0;
+
+    virtual Task<ErrorCode> MarkDirty(PageID page_id) = 0;
+
+    virtual Task<ErrorCode> UnPinPage(PageID page_id) = 0;
+
+    virtual Task<ErrorCode> FlushAllDirtyPages() = 0;
+};
+
+class MemTeatStorage final : public IStorage {
 public:
     struct PageWrap : public Page {
         bool dirty = false;
@@ -39,18 +80,18 @@ public:
     MemTeatStorage() = default;
     MemTeatStorage(int maxcount);
 
-    ErrorCode Format();
-    ErrorCode Load();
+    ~MemTeatStorage() override = default;
 
-    ~MemTeatStorage() = default;
+    Task<ErrorCode> Format() override;
+    Task<ErrorCode> Load() override;
 
-    ErrorCode AllocPage(Page **outPage);
-    ErrorCode FreePage(PageID page_id);
-    ErrorCode ReadPageWithPin(PageID page_id, Page **outPage);
-    ErrorCode MarkDirty(PageID page_id);
-    ErrorCode UnPinPage(PageID page_id);
-    ErrorCode FlushAllDirtyPages();
 
+    Task<ErrorCode> AllocPage(Page **outPage) override;
+    Task<ErrorCode> FreePage(PageID page_id) override;
+    Task<ErrorCode> ReadPageWithPin(PageID page_id, Page **outPage) override;
+    Task<ErrorCode> MarkDirty(PageID page_id) override;
+    Task<ErrorCode> UnPinPage(PageID page_id) override;
+    Task<ErrorCode> FlushAllDirtyPages() override;
 
 private:
     size_t                               maxcount = 0;
@@ -59,14 +100,5 @@ private:
     std::set<PageID>                     dirtyList;
     size_t                               page_id = 0;
 };
-static_assert(StorageInterface<MemTeatStorage>);
-
-template<typename T>
-concept StorageWrap = requires(T a, const T &ca) {
-                          requires StorageInterface<typename T::StorageType>;
-                          { a.GetStorage() } -> std::same_as<typename T::StorageType &>;
-                          { ca.GetStorage() } -> std::same_as<const typename T::StorageType &>;
-                      };
-
 
 }// namespace CodeBase

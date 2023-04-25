@@ -30,7 +30,7 @@ concept IndexInterface = requires(T t) {
                              typename T::ValueType;
                              IndexIterator<typename T::Iterator>;
                              ConstIndexIterator<typename T::ConstIterator>;
-                             ContextInterface<typename T::Context>;
+
                              {
                                  t.Insert(typename T::Context{}, typename T::KeyType{}, typename T::ValueType{})
                                  } -> std::same_as<ErrorCode>;

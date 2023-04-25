@@ -115,7 +115,7 @@ private:
 template<typename T>
 class TaskPromise : public TaskPromiseBase<T> {
 public:
-    TaskPromise() = default;
+    TaskPromise(){};
 
     Task<T> get_return_object() {
         return Task<T>{std::coroutine_handle<TaskPromise<T>>::from_promise(*this)};

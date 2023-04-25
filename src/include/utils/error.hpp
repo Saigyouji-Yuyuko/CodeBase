@@ -8,8 +8,8 @@ namespace CodeBase {
     XX(InvalidArgs, "InvalidArgs", "Invalid arguments")                                                                \
     XX(Fail, "Fail", "Fail")                                                                                           \
     XX(Eof, "Eof", "End of file")                                                                                      \
-    XX(NotSupport, "NotSupport", "Feature Not support yet")
-
+    XX(NotSupport, "NotSupport", "Feature Not support yet")                                                            \
+    XX(OutOfRange, "OutOfRange", "Out of range")
 
 enum {
     ErrorNoSuccess = 0,
@@ -33,7 +33,9 @@ constexpr const char *detailStr[] = {"Success",
 
 class ErrorCode {
 public:
+    constexpr explicit ErrorCode() = default;
     constexpr explicit ErrorCode(std::uint64_t code) : code(code) {}
+    ~ErrorCode() = default;
     constexpr std::string_view short_name() const {
         return shortName[code];
     }

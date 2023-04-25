@@ -3,7 +3,11 @@
 
 namespace CodeBase {
 
-template<typename T>
-concept ContextInterface = StorageWrap<T>;
+class IContext {
+public:
+    virtual ~IContext() = default;
+
+    IStorage *GetStorage();
+};
 
 }// namespace CodeBase
