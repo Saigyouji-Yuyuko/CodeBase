@@ -5,7 +5,7 @@
 
 namespace CodeBase {
 #define ERROR_CODE(XX)                                                                                                 \
-    XX(InvalidArgs, "InvalidArgs", "Invalid arguments")                                                                \
+    XX(InvalidArgument, "InvalidArgument", "Invalid arguments")                                                        \
     XX(Fail, "Fail", "Fail")                                                                                           \
     XX(Eof, "Eof", "End of file")                                                                                      \
     XX(NotSupport, "NotSupport", "Feature Not support yet")                                                            \

@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "coroutine/Task.hpp"
+#include "Task.hpp"
 #include <memory>
 #include <string_view>
 using namespace CodeBase;

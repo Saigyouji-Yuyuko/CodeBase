@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/error.hpp"
+#include "error.hpp"
 #include <cstdint>
 #include <memory>
 #include <string>
